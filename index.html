@@ -36,24 +36,26 @@
         }
 
         function updateAddressBar(path) {
-            history.pushState(null, "", path);
+            history.replaceState(null, "", path);
         }
 
-        // Listen for iframe navigation
-        window.addEventListener("message", (event) => {
-            if (event.origin !== baseURL) return; // Security check
-            const newPath = new URL(event.data).pathname;
-            updateAddressBar(newPath);
-        });
-
-        // Load the initial path
-        const initialPath = window.location.pathname;
-        loadPage(initialPath);
-
-        // Send message to iframe to capture changes
-        iframe.onload = () => {
-            iframe.contentWindow.postMessage("captureNavigation", baseURL);
+        // Load the initial page based on the URL
+        window.onload = () => {
+            const currentPath = window.location.pathname;
+            loadPage(currentPath);
         };
+
+        // Track iframe URL changes every 500ms
+        setInterval(() => {
+            try {
+                const iframePath = new URL(iframe.contentWindow.location.href).pathname;
+                if (window.location.pathname !== iframePath) {
+                    updateAddressBar(iframePath);
+                }
+            } catch (e) {
+                // Ignore cross-origin errors
+            }
+        }, 500);
     </script>
 </body>
 </html>
