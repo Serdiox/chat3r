@@ -11,7 +11,6 @@
             height: 100%;
             width: 100%;
             overflow: hidden;
-            background-color: #000;
         }
         iframe {
             position: absolute;
@@ -32,30 +31,25 @@
 
         function loadPage(path = "") {
             iframe.src = baseURL + path;
-            updateAddressBar(path);
-        }
-
-        function updateAddressBar(path) {
             history.replaceState(null, "", path);
         }
 
-        // Load the initial page based on the URL
         window.onload = () => {
+            // Get subpath from URL
             const currentPath = window.location.pathname;
             loadPage(currentPath);
         };
 
-        // Track iframe URL changes every 500ms
-        setInterval(() => {
-            try {
-                const iframePath = new URL(iframe.contentWindow.location.href).pathname;
-                if (window.location.pathname !== iframePath) {
-                    updateAddressBar(iframePath);
-                }
-            } catch (e) {
-                // Ignore cross-origin errors
+        // Listen for URL changes in the iframe by intercepting clicks
+        document.addEventListener("click", (event) => {
+            if (event.target.tagName === "A") {
+                event.preventDefault();
+                const targetUrl = new URL(event.target.href);
+                const subPath = targetUrl.pathname;
+                loadPage(subPath);
             }
-        }, 500);
+        });
+
     </script>
 </body>
 </html>
