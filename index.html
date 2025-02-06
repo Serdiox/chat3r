@@ -26,37 +26,32 @@
     <iframe id="proxyFrame" allowfullscreen></iframe>
 
     <script>
-        const iframe = document.getElementById("proxyFrame");
-        const baseURL = "https://a766-121-200-55-39.ngrok-free.app";
+        document.addEventListener("DOMContentLoaded", async () => {
+            const iframe = document.getElementById("proxyFrame");
+            const baseURL = "https://a766-121-200-55-39.ngrok-free.app";
 
-        function getPathFromUrl() {
-            const params = new URLSearchParams(window.location.search);
-            return params.get("path") || "";
-        }
+            // Check if we have a cached URL for performance boost
+            let cachedURL = sessionStorage.getItem("lastURL") || baseURL;
 
-        function updateIframePath(path) {
-            iframe.src = baseURL + path;
-        }
+            // Pre-check site status to load only if reachable
+            try {
+                const response = await fetch(cachedURL, { method: "HEAD" });
+                if (response.ok) {
+                    iframe.src = cachedURL;
+                } else {
+                    console.warn("Site not reachable, loading fallback...");
+                    iframe.src = baseURL; // Load default if the previous fails
+                }
+            } catch (error) {
+                console.error("Error loading site:", error);
+                iframe.src = baseURL; // Load default if there's an issue
+            }
 
-        function updateBrowserUrl(path) {
-            const newUrl = `${window.location.origin}?path=${encodeURIComponent(path)}`;
-            window.history.replaceState(null, "", newUrl);
-        }
-
-        // Load iframe with correct path
-        window.onload = () => {
-            const currentPath = getPathFromUrl();
-            updateIframePath(currentPath);
-        };
-
-        // Listen for navigation inside iframe (user clicks inside the page)
-        window.addEventListener("message", (event) => {
-            if (event.origin !== baseURL) return;
-            const newPath = event.data;
-            updateBrowserUrl(newPath);
-            updateIframePath(newPath);
+            // Save last visited URL to sessionStorage for faster reloads
+            iframe.onload = () => {
+                sessionStorage.setItem("lastURL", iframe.src);
+            };
         });
-
     </script>
 </body>
 </html>
