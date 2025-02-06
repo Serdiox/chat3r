@@ -12,30 +12,17 @@
             width: 100%;
             overflow: hidden;
         }
-        #content {
+        iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-            height: 100vh;
-            overflow: auto;
+            height: 100%;
+            border: none;
         }
     </style>
 </head>
 <body>
-    <div id="content">Loading...</div>
-
-    <script>
-        async function loadSite() {
-            try {
-                const response = await fetch("/api/proxy");
-                if (!response.ok) throw new Error("Failed to load content");
-                const text = await response.text();
-                
-                document.getElementById("content").innerHTML = text;
-            } catch (error) {
-                document.getElementById("content").innerHTML = "Error loading site.";
-            }
-        }
-
-        loadSite();
-    </script>
+    <iframe src="/api/proxy" allowfullscreen></iframe>
 </body>
 </html>
