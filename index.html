@@ -3,137 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat3r - Proxy Viewer</title>
+    <title>Chat3r</title>
     <style>
-        * {
+        html, body {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            background-color: #000;
         }
-
-        body {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            background-color: #121212;
-            color: white;
-        }
-
-        #navbar {
-            display: flex;
-            align-items: center;
-            background: #1e1e1e;
-            padding: 10px;
-            gap: 10px;
-        }
-
-        #urlInput {
-            flex: 1;
-            padding: 8px;
-            border-radius: 5px;
-            border: 1px solid #444;
-            background: #222;
-            color: white;
-        }
-
-        button {
-            padding: 8px 12px;
-            border: none;
-            background: #444;
-            color: white;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-
-        button:hover {
-            background: #666;
-        }
-
-        #iframeContainer {
-            flex: 1;
-            position: relative;
-        }
-
         iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             border: none;
         }
-
-        #requestDetails {
-            background: #1e1e1e;
-            padding: 10px;
-            font-size: 12px;
-            overflow: auto;
-            height: 100px;
-            border-top: 1px solid #333;
-        }
     </style>
 </head>
 <body>
-
-    <!-- Navbar -->
-    <div id="navbar">
-        <button onclick="goBack()">🔙</button>
-        <button onclick="goForward()">🔜</button>
-        <input type="text" id="urlInput" placeholder="Enter URL..." value="https://a766-121-200-55-39.ngrok-free.app">
-        <button onclick="loadPage()">Go</button>
-    </div>
-
-    <!-- Iframe Container -->
-    <div id="iframeContainer">
-        <iframe id="proxyFrame"></iframe>
-    </div>
-
-    <!-- Request Details -->
-    <div id="requestDetails">
-        <strong>Request Info:</strong> <span id="requestInfo">No request made yet.</span>
-    </div>
+    <iframe id="proxyFrame" allowfullscreen></iframe>
 
     <script>
-        let historyStack = [];
-        let historyIndex = -1;
-        let iframe = document.getElementById("proxyFrame");
-        let urlInput = document.getElementById("urlInput");
-        let requestInfo = document.getElementById("requestInfo");
+        const iframe = document.getElementById("proxyFrame");
+        const defaultURL = "https://a766-121-200-55-39.ngrok-free.app";
 
         function loadPage(url) {
-            let targetUrl = url || urlInput.value;
-            if (!targetUrl.startsWith("http")) {
-                targetUrl = "https://" + targetUrl;
-            }
-
-            iframe.src = targetUrl;
-            urlInput.value = targetUrl;
-
-            // Update history
-            if (historyStack[historyIndex] !== targetUrl) {
-                historyStack.push(targetUrl);
-                historyIndex++;
-            }
-
-            // Show request details
-            requestInfo.textContent = "Loading: " + targetUrl;
+            if (!url.startsWith("http")) url = "https://" + url;
+            iframe.src = url;
+            updateAddressBar(url);
         }
 
-        function goBack() {
-            if (historyIndex > 0) {
-                historyIndex--;
-                loadPage(historyStack[historyIndex]);
-            }
+        function updateAddressBar(url) {
+            history.pushState(null, "", "/?url=" + encodeURIComponent(url));
         }
 
-        function goForward() {
-            if (historyIndex < historyStack.length - 1) {
-                historyIndex++;
-                loadPage(historyStack[historyIndex]);
-            }
-        }
+        window.onpopstate = function () {
+            const params = new URLSearchParams(window.location.search);
+            const newURL = params.get("url") || defaultURL;
+            iframe.src = newURL;
+        };
 
-        // Load initial page
-        loadPage();
+        // Load from URL if available
+        const params = new URLSearchParams(window.location.search);
+        const initialURL = params.get("url") || defaultURL;
+        loadPage(initialURL);
     </script>
-
 </body>
 </html>
