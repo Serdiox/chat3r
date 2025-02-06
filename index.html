@@ -29,25 +29,32 @@
         const iframe = document.getElementById("proxyFrame");
         const baseURL = "https://a766-121-200-55-39.ngrok-free.app";
 
-        function loadPage(path = "") {
-            iframe.src = baseURL + path;
-            history.replaceState(null, "", path);
+        function getPathFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get("path") || "";
         }
 
+        function updateIframePath(path) {
+            iframe.src = baseURL + path;
+        }
+
+        function updateBrowserUrl(path) {
+            const newUrl = `${window.location.origin}?path=${encodeURIComponent(path)}`;
+            window.history.replaceState(null, "", newUrl);
+        }
+
+        // Load iframe with correct path
         window.onload = () => {
-            // Get subpath from URL
-            const currentPath = window.location.pathname;
-            loadPage(currentPath);
+            const currentPath = getPathFromUrl();
+            updateIframePath(currentPath);
         };
 
-        // Listen for URL changes in the iframe by intercepting clicks
-        document.addEventListener("click", (event) => {
-            if (event.target.tagName === "A") {
-                event.preventDefault();
-                const targetUrl = new URL(event.target.href);
-                const subPath = targetUrl.pathname;
-                loadPage(subPath);
-            }
+        // Listen for navigation inside iframe (user clicks inside the page)
+        window.addEventListener("message", (event) => {
+            if (event.origin !== baseURL) return;
+            const newPath = event.data;
+            updateBrowserUrl(newPath);
+            updateIframePath(newPath);
         });
 
     </script>
