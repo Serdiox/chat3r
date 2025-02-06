@@ -24,26 +24,5 @@
 </head>
 <body>
     <iframe id="proxyFrame" src="/api/proxy" allowfullscreen></iframe>
-
-    <script>
-        function bypassNgrokPage() {
-            const iframe = document.getElementById("proxyFrame");
-
-            iframe.onload = () => {
-                try {
-                    const doc = iframe.contentDocument || iframe.contentWindow.document;
-                    
-                    const visitBtn = doc.querySelector("a[href^='/app/visit']");
-                    if (visitBtn) {
-                        visitBtn.click();
-                    }
-                } catch (error) {
-                    console.warn("Could not access iframe content due to same-origin policy.");
-                }
-            };
-        }
-
-        bypassNgrokPage();
-    </script>
 </body>
 </html>
