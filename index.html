@@ -1,57 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat3r</title>
-    <style>
-        html, body {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            width: 100%;
-            overflow: hidden;
-        }
-        iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chat3r</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+    }
+    iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+  </style>
 </head>
 <body>
-    <iframe id="proxyFrame" allowfullscreen></iframe>
-
-    <script>
-        document.addEventListener("DOMContentLoaded", async () => {
-            const iframe = document.getElementById("proxyFrame");
-            const baseURL = "https://a766-121-200-55-39.ngrok-free.app";
-
-            // Check if we have a cached URL for performance boost
-            let cachedURL = sessionStorage.getItem("lastURL") || baseURL;
-
-            // Pre-check site status to load only if reachable
-            try {
-                const response = await fetch(cachedURL, { method: "HEAD" });
-                if (response.ok) {
-                    iframe.src = cachedURL;
-                } else {
-                    console.warn("Site not reachable, loading fallback...");
-                    iframe.src = baseURL; // Load default if the previous fails
-                }
-            } catch (error) {
-                console.error("Error loading site:", error);
-                iframe.src = baseURL; // Load default if there's an issue
-            }
-
-            // Save last visited URL to sessionStorage for faster reloads
-            iframe.onload = () => {
-                sessionStorage.setItem("lastURL", iframe.src);
-            };
-        });
-    </script>
+  <!-- The iframe now loads from your own domain, which will use your proxy to fetch ngrok content. -->
+  <iframe id="proxyFrame" src="/" allowfullscreen></iframe>
 </body>
 </html>
