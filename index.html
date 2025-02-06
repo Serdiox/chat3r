@@ -28,28 +28,36 @@
 
     <script>
         const iframe = document.getElementById("proxyFrame");
-        const defaultURL = "https://a766-121-200-55-39.ngrok-free.app";
+        const baseURL = "https://a766-121-200-55-39.ngrok-free.app"; 
 
-        function loadPage(url) {
-            if (!url.startsWith("http")) url = "https://" + url;
-            iframe.src = url;
-            updateAddressBar(url);
+        function loadPage(path = "") {
+            let newURL = baseURL + path;
+            iframe.src = newURL;
+            updateAddressBar(path);
         }
 
-        function updateAddressBar(url) {
-            history.pushState(null, "", "/?url=" + encodeURIComponent(url));
+        function updateAddressBar(path) {
+            history.pushState(null, "", path);
         }
 
         window.onpopstate = function () {
-            const params = new URLSearchParams(window.location.search);
-            const newURL = params.get("url") || defaultURL;
-            iframe.src = newURL;
+            let path = window.location.pathname;
+            loadPage(path);
         };
 
-        // Load from URL if available
-        const params = new URLSearchParams(window.location.search);
-        const initialURL = params.get("url") || defaultURL;
-        loadPage(initialURL);
+        // Detect iframe navigation
+        iframe.onload = function () {
+            try {
+                let subPath = new URL(iframe.contentWindow.location.href).pathname;
+                updateAddressBar(subPath);
+            } catch (e) {
+                console.warn("Cross-origin restriction: Unable to track iframe navigation.");
+            }
+        };
+
+
+        let initialPath = window.location.pathname.replace(/^\/$/, "");
+        loadPage(initialPath);
     </script>
 </body>
 </html>
