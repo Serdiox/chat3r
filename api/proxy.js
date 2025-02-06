@@ -1,24 +1,27 @@
 export default async function handler(req, res) {
-    const targetUrl = "https://a766-121-200-55-39.ngrok-free.app" + req.url.replace("/api/proxy", "");
+    const targetBaseUrl = "https://a766-121-200-55-39.ngrok-free.app";
+
+    let targetUrl = targetBaseUrl;
+    if (req.query.url) {
+        targetUrl += `/${req.query.url}`;
+    }
 
     try {
         const response = await fetch(targetUrl, {
             method: req.method,
             headers: {
                 ...req.headers,
-                host: new URL(targetUrl).host
+                host: new URL(targetBaseUrl).host
             }
         });
 
         let body = await response.text();
         const contentType = response.headers.get("content-type");
 
-        // If it's an HTML response, modify it to remove Ngrok's confirmation page
+        // Fix Ngrok redirection issue
         if (contentType && contentType.includes("text/html")) {
-            body = body.replace(/window.location.href\s*=\s*['"](https?:\/\/.*?)['"];/g, `
-                window.location.href = "/api/proxy$1";
-            `);
-            body = body.replace(/<a[^>]*href="(https?:\/\/.*?)"[^>]*>/g, '<a href="/api/proxy$1">');
+            body = body.replace(/window\.location\.href\s*=\s*['"](.*?)['"];/g, `console.log("Blocked Ngrok redirect");`);
+            body = body.replace(/<meta[^>]*http-equiv=["']refresh["'][^>]*>/gi, "");
         }
 
         res.setHeader("Content-Type", contentType);
