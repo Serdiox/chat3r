@@ -10,12 +10,20 @@ export default async function handler(req, res) {
             }
         });
 
+        let body = await response.text();
         const contentType = response.headers.get("content-type");
+
+        // If it's an HTML response, modify it to remove Ngrok's confirmation page
+        if (contentType && contentType.includes("text/html")) {
+            body = body.replace(/window.location.href\s*=\s*['"](https?:\/\/.*?)['"];/g, `
+                window.location.href = "/api/proxy$1";
+            `);
+            body = body.replace(/<a[^>]*href="(https?:\/\/.*?)"[^>]*>/g, '<a href="/api/proxy$1">');
+        }
+
         res.setHeader("Content-Type", contentType);
-        
-        const body = await response.text();
         res.status(200).send(body);
     } catch (error) {
-        res.status(500).send("Proxy Error");
+        res.status(500).send("Proxy Error: " + error.message);
     }
 }
