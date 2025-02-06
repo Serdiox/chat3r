@@ -11,6 +11,7 @@
             height: 100%;
             width: 100%;
             overflow: hidden;
+            background-color: #000; /* Prevents white flash */
         }
         iframe {
             position: absolute;
@@ -23,6 +24,10 @@
     </style>
 </head>
 <body>
-    <iframe src="/proxy" allowfullscreen></iframe>
+    <iframe id="proxyFrame" allowfullscreen></iframe>
+
+    <script>
+        document.getElementById("proxyFrame").src = "https://a766-121-200-55-39.ngrok-free.app";
+    </script>
 </body>
 </html>
